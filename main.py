@@ -13,10 +13,9 @@ from app.handlers import router
 from app.database.models import async_main
 
 from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv('.env'))
+load_dotenv()
 # Bot token can be obtained via https://t.me/BotFather
 TOKEN = os.getenv('TOKEN')
-
 
 
 async def main() -> None:

@@ -1,5 +1,5 @@
 from aiogram import F, Router
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart, Command, Filter
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.markdown import hbold
@@ -10,10 +10,26 @@ import app.database.requests as rq
 router = Router()
 
 
+ADMINS = [981465741,]
+
+
+class AdminProtect(Filter):
+    def __init__(self):
+        self.admins = ADMINS
+
+    async def __call__(self, message: Message):
+        return message.from_user.id in self.admins
+
+
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await rq.get_user(message.from_user.id)
     await message.answer(f"Привет, {hbold(message.from_user.full_name)}! Добро пожаловать в наш магазин!", reply_markup=kb.main)
+
+
+@router.message(AdminProtect(), Command('apanel'))
+async def apanel(message: Message):
+    await message.answer('Это панель администратора')
 
 
 @router.message(F.text == "Каталог")
@@ -26,15 +42,12 @@ async def category_handler(callback: CallbackQuery) -> None:
     await callback.answer('')
     await callback.message.answer('Выберите товар', reply_markup=await kb.products(callback.data.split('_')[1]))
 
+
 @router.callback_query(F.data.startswith("product_"))
 async def category_handler(callback: CallbackQuery) -> None:
     product = await rq.get_product(callback.data.split('_')[1])
     await callback.answer('')
     await callback.message.answer(f'Название: {product.name}\nОписание: {product.description}\nЦена: {product.price}', reply_markup=await kb.products(callback.data.split('_')[1]))
-
-
-
-
 
 
 # @router.callback_query(F.data == "tshirt")

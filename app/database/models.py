@@ -1,8 +1,11 @@
+import os
 from sqlalchemy import BigInteger, ForeignKey, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker, AsyncAttrs
+from dotenv import load_dotenv
+load_dotenv()
 
-engine = create_async_engine('sqlite+aiosqlite:///database.db', echo=True)
+engine = create_async_engine(url=os.getenv("DATABASE"), echo=True)
 
 async_session = async_sessionmaker(engine)
 
